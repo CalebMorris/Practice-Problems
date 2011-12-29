@@ -1,21 +1,12 @@
 #include <iostream>
 #include <set>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
-class node {
-	public:
-		int value;
-		bool visited;
-		node(): value(0), visited(false){}	
-		node( int inp ) : value(inp), visited(false){}
-
-		void visit() { visited = true; }
-};
-
 void solve( int const& , set<pair<int,int> > const& );
-void discover( vector<node> const& , set<pair<int,int> > const& , int& );
+void discover( vector<int> const& , set<pair<int,int> > const& , int& );
 
 int end;
 int main() {
@@ -25,16 +16,8 @@ int main() {
 		int x = -1, y = -1;
 		set< pair<int, int> > edges;
 		while ( (cin >> x >> y) && x != 0 && y != 0 ) {
-			if( x < y ) {
-				edges.insert( pair<int,int>(x,y) );
-			}
-			else {
-				edges.insert( pair<int,int>(y,x) );
-			}
-		}
-		cout << end << endl;
-		for ( set<pair<int,int> >::iterator it = edges.begin(); it != edges.end(); ++it ) {
-			cout << it->first << " " << it ->second << endl;
+			edges.insert( pair<int,int>(x,y) );
+			edges.insert( pair<int,int>(y,x) );
 		}
 		solve( end, edges );
 	}
@@ -43,41 +26,37 @@ int main() {
 }
 
 void solve( int const& end, set<pair<int,int> > const& edges ) {
-	vector<node> current;
+	vector<int> current;
 	int count = 0;
-	current.push_back(node(1));
+	current.push_back(1);
 	set<pair<int,int> >::const_iterator it;
 	for( it = edges.begin(); it != edges.end() && it->first != 1; ++it );
 	for( ; it != edges.end() && it->first == 1; ++it ) {
-		vector<node> carry(current);
-		carry.push_back( node( it->second ) );
-		discover( carry, edges, count );
+		if( find( current.begin(), current.end(), it->second ) == current.end() ) {
+			vector<int> carry(current);
+			carry.push_back( it->second );
+			discover( carry, edges, count );
+		}
 	}
 	cout << "There are " << count << " routes from the firestation to streetcorner " << end << "." << endl;
 }
 
-void discover( vector<node> const& current, set<pair<int,int> > const& edges, int& count ) {
+void discover( vector<int> const& current, set<pair<int,int> > const& edges, int& count ) {
 	set<pair<int,int> >::const_iterator it;
-	int last = current.rbegin()->value;
+	int last = *current.rbegin();
 	for( it = edges.begin(); it != edges.end() && it->first != last; ++it );
 	for( ; it != edges.end() && it->first == last ; ++it ) {
-		vector<node> carry(current);
-		carry.push_back( node( it->second ) );
-		discover( carry, edges, count );
-	}
-	/* Causing loop. Need to add visited conditions
-	for( it = edges.begin(); it != edges.end() && it->second != last; ++it );
-	for( ; it != edges.end() && it->second == last ; ++it ) {
-		vector<node> carry(current);
-		carry.push_back( node( it->first ) );
-		discover( carry, edges, count );
-	}
-	*/
-	if( end == (current.rbegin())->value ) {
-		++count;
-		for( vector<node>::const_iterator cit = current.begin(); cit != (current.end()-1); ++cit ) {
-			cout << cit->value << "\t";
+		if( find( current.begin(), current.end(), it->second ) == current.end() ) {
+			vector<int> carry(current);
+			carry.push_back( it->second );
+			discover( carry, edges, count );
 		}
-		cout << (current.rbegin())->value << endl;
+	}
+	if( end == *current.rbegin() ) {
+		++count;
+		for( vector<int>::const_iterator cit = current.begin(); *cit != *current.rbegin(); ++cit ) {
+			cout << *cit << "\t";
+		}
+		cout << *current.rbegin() << endl;
 	}
 }
