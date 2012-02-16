@@ -1,0 +1,30 @@
+Square Subsequences(25 points)
+
+A string is called a square string if it can be obtained by concatenating two copies of the same string. For example, "abab", "aa" are square strings, while "aaa", "abba" are not. Given a string, how many subsequences of the string are square strings? A subsequence of a string can be obtained by deleting zero or more characters from it, and maintaining the relative order of the remaining characters.
+
+Input:
+The first line contains the number of test cases T. T test cases follow. Each case contains a string S.
+
+Output:
+Output T lines, one for each test case containing the required answer modulo 1000000007.
+
+Constraints:
+1 <= T <= 20
+S will have at most 200 characters.
+
+Sample Input:
+3
+aaa
+abab
+baaba
+
+
+Sample Output:
+3
+3
+6
+
+Explanation:
+For the first case, there are 3 subsequences of length 2, all of which are square strings.
+For the second case, the subsequences "abab", "aa", "bb" are square strings.
+
