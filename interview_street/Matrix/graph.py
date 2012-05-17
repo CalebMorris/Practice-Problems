@@ -71,19 +71,17 @@ class graph:
 			previous.append(-1)
 		dist[node_a] = 0
 		while len(Q) > 0:
-			#
 			tmpD = []
 			for x in self.nodes:
 				if x in Q:
 					tmpD.append(dist[x])
 				else:
 					tmpD.append(-1)
-			#print "tmpD, ",tmpD
 			u = smallest(tmpD)
 			if(isinf(dist[u])):
 				break;
-			#print "removing, ",u
-			#print Q
+			if(u == node_b):
+				True
 			Q.remove(u)
 			for v in neighbors(u):
 				alt = dist[u] + self.adjacents[u][v]
