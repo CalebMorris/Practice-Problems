@@ -4,23 +4,24 @@ from graph import graph
 tmp = raw_input().split()
 n = int(tmp[0])
 k = int(tmp[1])
-print n, k
+#print n, k
 paths = []
 machines = []
 for x in xrange(n-1):
-	paths.append(raw_input())
-print "Paths:", paths
+	t = raw_input()
+	p_tmp = t.split()
+	paths.append((int(p_tmp[0]),int(p_tmp[1]),int(p_tmp[2])))
+#print "Paths:", paths
 for x in range(k):
 	machines.append(input())
-print "Machines:",machines
+#print "Machines:",machines
 #input done i guess
 gr = graph(n)
 
 for x in paths:
-	y = x.split()
-	gr.add_edge(int(y[0]),int(y[1]),int(y[2]))
-	#print gr.path_exists(int(y[0]),int(y[1]))
-gr.pretty_print()
+	#print x
+	gr.add_edge(x)
+	#print gr.path_exists(x[0],x[1])
 #all edges and nodes in Graph() datatype
 
 def cut_off(G, machines):
@@ -41,14 +42,56 @@ def cut_off(G, machines):
 	return True
 #end (*)cut_off
 
+def search( G, paths = None, machines = None, alt = 0, cheap = float('inf') ):
+	'''
+	Search Algorithm notes
+	Start at the highest possible value for the cheapest destruction cost
+		* Change this to heuristic later
+	For each edge (keeping a running sum of the time for edge destruction)
+		remove the edge from the adjacency matrix and run the state-check
+	If either the sum is too big or there are no more edges, return <<something>>
+	'''
+	#print "paths",paths
+	#print "alt",alt
+	#print "cheap",cheap
+	for x in paths:
+		#(node_a,node_b,weight)
+		if (alt+x[2]) >= cheap:
+			pass
+		else:
+			#only going through first edges, fix this
+			G.remove_edge(x[0],x[1])
+			if cut_off(G, machines):
+				#print "cut off with final edge",x
+				#print "with remaining paths",paths
+				if(alt+x[2]<cheap):
+					cheap = alt+x[2]
+			elif not paths:
+				#print "no more paths, move on."
+				return float('inf')
+			else:
+				#print "down the rabbit whole on edge",x
+				tmp = search(
+						G,
+						paths[:paths.index(x)]+paths[paths.index(x)+1:],
+						machines, 
+						alt+x[2],cheap
+						)
+				if(tmp < cheap):
+					cheap = tmp
+				#print "tmp search return",tmp
+			G.add_edge(x)
+	return cheap
+
+#end (*)search
+				
+	
 if(not cut_off(gr,machines)):
-	print "The machines are winning"
-
-cheapest = float('inf')
-Q = []
-for x in gr.nodes:
-	Q.append(x)
-
+	#simple check if I need to even do anything
+	#print "The machines are winning"
+	print search(gr, paths, machines)
+else:
+	print "Shortest cut-off is 0"
 
 '''
 #simple tests for testInput
@@ -63,13 +106,3 @@ print gr.path_exists(2,3)
 print gr.path_exists(2,4)
 print gr.path_exists(3,4)
 '''
-
-
-
-"""
-for x in xrange(n):
-	for y in xrange(n):
-		print "x, y: ",x,y
-		print path_exists(x,y,n,matrix)
-"""
-

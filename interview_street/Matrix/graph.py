@@ -27,9 +27,19 @@ class graph:
 		self.adjacents[node_a][node_b] = edge_weight
 		self.adjacents[node_b][node_a] = edge_weight
 		#self.pretty_print()
+	
+	def add_edge(self, edge_iter):
+		self.adjacents[edge_iter[0]][edge_iter[1]] = edge_iter[2]
+		self.adjacents[edge_iter[1]][edge_iter[0]] = edge_iter[2]
+		#self.pretty_print()
+
+	def remove_edge(self, node_a, node_b):
+		self.adjacents[node_a][node_b] = -1
+		self.adjacents[node_b][node_a] = -1
+		#self.pretty_print()
 
 	def path_exists(self, node_a, node_b):
-		print "Find if there is a path between:",node_a,"and",node_b
+		#print "Find if there is a path between:",node_a,"and",node_b
 		flag = False
 		Q = []
 		for x in self.nodes:
