@@ -20,6 +20,8 @@ void print_graph( struct graph );
 bool is_connected( struct graph , int , int );
 bool is_cut_off( struct graph, int* , int );
 int search( struct graph , int* , int , int , int );
+int* neighbors( struct graph , int* , int );
+int smallest( int* , int );
 
 int main() {
 	int n, k, i, j, machine;
@@ -58,6 +60,11 @@ int main() {
 	/* Input done */
 	print_graph(gr);
 
+	for (i = 0; i < n-1; i++) {
+		print_path(gr.paths[i]);
+		printf("%d\n",is_connected(gr, gr.paths[i].node_a, gr.paths[i].node_b));
+	}
+
 	search(gr, machines, k, 0, INT_MAX);
 
 	return 0;
@@ -82,27 +89,81 @@ void print_graph( struct graph g ) {
 }
 
 bool is_connected( struct graph gr, int node_a, int node_b ) {
-	int i;
+	//TODO fix this function
+	int i, u, v, alt;
 	bool flag = false;
 	int* Q = (int*)malloc(sizeof(int)*gr.size);
 	int* dist = (int*)malloc(sizeof(int)*gr.size);
-	int* tmpD; 
+	int* tmpD = (int*)malloc(sizeof(int)*gr.size); 
+	int* neigh;
 	int q_size = gr.size;
+	/*
+	if( gr.adjacents[node_a][node_b] > 0 )
+		return true;
+	*/
 	for (i = 0; i < gr.size; i++) {
 		Q[i] = i;
 		dist[i] = INT_MAX;
 	}
 	dist[node_a] = 0;
 	while( q_size > 0 ) {
-		tmpD = (int*)malloc(sizeof(int)*gr.size);
+#ifdef DEBUG
+		for (i = 0; i < gr.size; i++) {
+			printf("Q[%d]: %d\n",i,Q[i]);
+		}
+		printf("q_size: %d\n",q_size);
+		printf("dist:\n");
+#endif
 		for ( i = 0; i < gr.size; i++ ) {
-			tmpD[i] = -1;
+			tmpD[i] = INT_MAX;
 		}
 		for (i = 0; i < gr.size; i++) {
-			if( Q[i] > 0 ) {
-				tmpD[i] = i;
+			if( Q[i] >= 0 ) {
+#ifdef DEBUG
+				printf("i:%d\n",i);
+#endif
+				tmpD[i] = dist[i];
 			}
 		}
+#ifdef DEBUG
+		for (i = 0; i < gr.size; i++) {
+			printf("dist[%d]: %d\n",i,dist[i]);
+		}
+		for (i = 0; i < gr.size; i++) {
+			printf("tmpD[%d]: %d\n",i,tmpD[i]);
+		}
+#endif
+		u = smallest(tmpD, gr.size); 
+#ifdef DEBUG
+		printf("u: %d\n",u);
+#endif
+		if( dist[u] == INT_MAX ) {
+			break;
+		}
+		if( u == node_b ) {
+			flag = true;
+			return flag;
+		}
+		Q[u] = -1;
+		--q_size;
+		neigh = neighbors(gr, Q, u); 
+#ifdef DEBUG
+		for (i = 0; i < gr.size; i++) {
+			printf("neigh[%d]: %d\n",i,neigh[i]);
+		}
+#endif
+		for (i = 0; i < gr.size; i++) {
+			if( neigh[i] >= 0 ) {
+				v = neigh[i];
+				alt = dist[u] + gr.adjacents[u][v];
+				if( alt < dist[v] ) {
+					dist[v] = alt;
+				}
+			}
+		}
+	}
+	if( dist[node_b] < INT_MAX ) {
+		flag = true;
 	}
 
 	return flag;
@@ -122,8 +183,39 @@ bool is_cut_off( struct graph gr, int* machines, int machine_size ) {
 }
 
 int search( struct graph gr, int* machines, int machine_size, int alt, int cheap ) {
+	//TODO write this function
 	printf("Searching\n");
 }
 
-int* neighbors( struct graph gr, int node ) {
+int* neighbors( struct graph gr, int* q, int node ) {
+	int* ret_val = (int*)malloc(sizeof(int)*gr.size);
+	int i;
+#ifdef DEBUG
+		printf("\tnode: %d\n", node);
+		for (i = 0; i < gr.size; i++) {
+			printf("\tQ[%d]: %d\n",i,q[i]);
+		}
+#endif
+	for (i = 0; i < gr.size; i++) {
+		if( q[i] >= 0 && gr.adjacents[i][node] > 0 ) {
+			ret_val[i] = i;
+		}
+		else {
+			ret_val[i] = -1;
+		}
+	}
+	return ret_val;
+}
+
+int smallest( int* z, int z_size ) {
+	int small, i;
+	if( z_size <= 0 )
+		return -1;
+	small = z[0];
+	for (i = 1; i< z_size; i++) {
+		if( z[i] < small ) {
+			small = i;
+		}
+	}
+	return small;
 }
